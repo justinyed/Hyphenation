@@ -19,126 +19,75 @@ bool isCluster(std::map<int, int> cluster_positions, int current_position){
     return cluster_positions.find(current_position) != cluster_positions.end();
 }
 
-string getCluster(std::map<int, int> cluster_positions, int current_position, const char *c){
-    string str = "";
-    // Skip past cluster
-    int cluster_length = cluster_positions[current_position];
-    for (int j = 0; j < cluster_length; j++) {
-        str += *(c + j); // I think this is right???
-    }
-    return str;
-}
+//std::map<int, int> indivisible_positions(const char *c) {
+//
+//    std::vector<std::string> indivisible_positions = { };
+//    std::string list[] = {"qu", "tr", "br", "st", "sl", "bl", "cr", "ph", "ch", "str"};
+//    int length = list->length();
+//
+//    // convert to lower case
+//    string txt = c;
+//
+//
+//
+//    for (int i = 0; i < length; i++) {
+//        int found = txt.find(list[i]);
+//
+//        while (found != string::npos) {
+//            m[found] = list[i].length();
+//            found = txt.find(list[i], found + 1);
+//        }
+//    }
+//
+//    return m;
+//}
 
-std::map<int, int> indivisible_positions(const char *c) {
 
-    std::string list[] = {"qu", "tr", "br", "st", "sl", "bl", "cr", "ph", "ch", "str"};
-    int length = list->length();
-    string txt = c;
-    std::transform(txt.begin(), txt.end(), txt.begin(), ::tolower);
-    std::map<int, int> m;
 
-    for (int i = 0; i < length; i++) {
-        int found = txt.find(list[i]);
-
-        while (found != string::npos) {
-            m[found] = list[i].length();
-            found = txt.find(list[i], found + 1);
-        }
-    }
-
-    return m;
-}
 
 char *process(const char *input) {
 
+    regex vowels("[aeiouy]", std::regex::icase);
+    regex consonants("[b-df-hj-np-tv-z]|[\a]", std::regex::icase);
+    regex clusters("(qu)|(tr)|(br)|(st)|(sl)|(bl)|(cr)|(ph)|(ch)|(str)", std::regex::icase);
 
-    std::map<int, int> cluster_positions = indivisible_positions(input);
-    int length = strlen(input);
+    regex vcv("vcv", std::regex::icase);
+    regex vccv("vccv", std::regex::icase);
+
+    const char temp_character = '\a';
 
     string org_str = input;
-    string new_str = "";
-    string group = "";
-
-    char previous;
-    char current;
-    char next;
-    char next_next;
-
-    bool is_prev_vowel = false;
-    bool is_prev_consonant = false;
-
-    for (int i = 0; i < length; i++) {
-        current = *(input + i);
-
-        // Check if current is a letter, else skip
-        if (isalpha(current)) {
+    string new_str = input;
 
 
-            if (isVowel(current) && i + 2 < length) {
-                // true, then make it previous
-                // prev=V
-                is_prev_vowel = isVowel(current);
-                previous = current;
-                group += previous;
+    vector<int> found_cluster_positions;
+    vector<std::string> found_clusters;
 
+    auto it = std::sregex_iterator(new_str.begin(), new_str.end(), clusters);
 
-                current = *(input + ++i);
-                // current=?
-                if (isConsonant(current)) {
-                    // Check if cluster
-                    if (isCluster(cluster_positions, i)) {
-                        // Skip past cluster
-                        int cluster_length = cluster_positions[i];
-                        for (int j = 0; j < cluster_length; j++) {
-                            group += *(input + i++); // I think this is right???
-                        }
-                    }
-
-                    // Check next
-                    next = *(input + i + 1);
-                    if (isalpha(next)) {
-
-                        if (isVowel(next)) {
-                            // vowel = true
-                            // found Pattern !!!
-                            cout << "pattern found";
-                            group += previous + "-" + current + next;
-                        } else {
-                            // vowel = false; must be consonant
-                            // time to check next_next
-                            if (i + 3 < length) {
-                                next_next = *(input + 3);
-
-                                if (isConsonant(current)) {
-
-                                    // Check if cluster
-                                    if (isCluster(cluster_positions, i)) {
-
-                                        // Skip past cluster
-//                                        group += getCluster();
-                                        int cluster_length = cluster_positions[i];
-                                        for (int j = 0; j < cluster_length; j++) {
-                                            group += *(input + i++); // I think this is right???
-                                        }
-                                        // Pattern found
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-
-                    // end
-                }
-            }
-        } else {
-            // Not a letter so both must be false
-            new_str += current;
-            is_prev_vowel = false;
-            is_prev_consonant = false;
-        }
-
-        return NULL;
+    for(; it != std::sregex_iterator(); ++it) {
+        found_cluster_positions.push_back(it->position());
+        found_clusters.push_back(it->str());
     }
+
+
+
+
+
+
+
+
+
+
+    // Create Abstract String
+    string abs_str = input;
+    abs_str = regex_replace(abs_str, vowels, "a");
+    abs_str = regex_replace(abs_str, consonants, "b");
+
+//    cout << abs_str << "\n";
+
+
+
+    return NULL;
 }
 

@@ -47,15 +47,17 @@ bool isCluster(std::map<int, int> cluster_positions, int current_position){
 
 char *process(const char *input) {
 
+    const string SYM = "*";
     regex vowels("[aeiouy]", std::regex::icase);
-    regex consonants("[b-df-hj-np-tv-z]|[*]", std::regex::icase);
+    regex consonants("[b-df-hj-np-tv-z]|[" + SYM + "]", std::regex::icase);
     regex clusters("(qu)|(tr)|(br)|(st)|(sl)|(bl)|(cr)|(ph)|(ch)|(str)", std::regex::icase);
-    regex symbol("[*]");
+    regex symbol("[" + SYM + "]");
+
 
     regex vcv("vcv", std::regex::icase);
     regex vccv("vccv", std::regex::icase);
 
-    const char temp_character = '\a';
+
 
     string org_str = input;
     string new_str = input;
@@ -75,8 +77,14 @@ char *process(const char *input) {
     cout << "\nOriginal:\t" << new_str;
 
     // Unload clusters from string replace with symbol
-    new_str = std::regex_replace(new_str, clusters, "*");
+    new_str = std::regex_replace(new_str, clusters, SYM);
     cout << "\nUnloaded:\t" << new_str;
+
+    // Generate Abstract String
+    string abs_str = input;
+    abs_str = regex_replace(new_str, vowels, "a");
+    abs_str = regex_replace(abs_str, consonants, "b");
+
 
     // Reload clusters from vectors into string.
     for (int i = 0; i < found_clusters.size(); i++)
@@ -94,12 +102,9 @@ char *process(const char *input) {
 
 
 
-    // Create Abstract String
-    string abs_str = input;
-    abs_str = regex_replace(abs_str, vowels, "a");
-    abs_str = regex_replace(abs_str, consonants, "b");
 
-//    cout << abs_str << "\n";
+
+    cout << abs_str << "\n";
 
 
 

@@ -4,70 +4,67 @@
 
 using namespace std;
 
+// Forward Declaration
+bool isVowel(char c);
+bool isConsonant(char c);
+string generate_abstract(string s);
+string unload_clusters(string str);
+string load_clusters(string str, vector<string> found_clusters);
+vector<std::string> generate_cluster_vector (string str);
+char * convert_to_c_string(std::string s);
+
+
 // CONSTANTS
 const string SYM = "*";
+const string SYMBOLIC_VOWEL = "a";
+const string SYMBOLIC_CONSONANT = "b";
+const string SYMBOLIC_PATTERN_VCV = "(" + SYMBOLIC_VOWEL+ SYMBOLIC_CONSONANT+ SYMBOLIC_VOWEL + ")";
+const string SYMBOLIC_PATTERN_VCCV = "(" + SYMBOLIC_VOWEL+ SYMBOLIC_CONSONANT+ SYMBOLIC_CONSONANT + SYMBOLIC_VOWEL + ")";
+const char DELIMITER = '-';
 
 const regex REGEX_SYMBOL("[" + SYM + "]");
 const regex REGEX_VOWELS("[aeiouy]", std::regex::icase);
 const regex REGEX_CONSONANTS("[b-df-hj-np-tv-z]|[" + SYM + "]", std::regex::icase);
 const regex REGEX_CLUSTERS("(qu)|(tr)|(br)|(st)|(sl)|(bl)|(cr)|(ph)|(ch)|(str)", std::regex::icase);
 
-const regex REGEX_PATTERN_VCV("vcv", std::regex::icase);
-const regex REGEX_PATTERN_VCCV("vccv", std::regex::icase);
+const regex REGEX_PATTERN_VCV(SYMBOLIC_PATTERN_VCV, std::regex::icase);
+const regex REGEX_PATTERN_VCCV(SYMBOLIC_PATTERN_VCCV, std::regex::icase);
 
-string unload_clusters(string str){
-    return std::regex_replace(str, REGEX_CLUSTERS, SYM);
-}
-
-string load_clusters(string str, vector<string> found_clusters){
-    for (int i = 0; i < found_clusters.size(); i++)
-        str = std::regex_replace(str, REGEX_SYMBOL, found_clusters[i], std::regex_constants::format_first_only);
-    return str;
-}
 
 char *process(const char *input) {
 
     string org_str = input;
-    string new_str = input;
+    string new_str = unload_clusters(org_str);
+    string abs_str = generate_abstract(new_str);
+    vector<std::string> clusters = generate_cluster_vector (org_str);
 
 
-    // Generate Cluster vectors
-    vector<int> found_cluster_positions;
-    vector<std::string> found_clusters;
 
-    auto it = std::sregex_iterator(new_str.begin(), new_str.end(), REGEX_CLUSTERS);
 
-    for(; it != std::sregex_iterator(); ++it) {
-        found_cluster_positions.push_back(it->position());
-        found_clusters.push_back(it->str());
+
+    string str = abs_str;
+    vector<int> positions;
+    auto it = std::sregex_iterator(str.begin(), str.end(), REGEX_PATTERN_VCCV);
+    for (; it != std::sregex_iterator(); ++it) {
+        positions.push_back(it->position() + 2);
     }
 
-    cout << "\nOriginal:\t" << new_str;
+    for (int i = 0; i < positions.size(); i++){
+        new_str.insert(positions[i], 1, DELIMITER);
+    }
 
-    // Unload REGEX_CLUSTERS from string replace with REGEX_SYMBOL
+    return convert_to_c_string(load_clusters(new_str, clusters));
+}
 
-    new_str = unload_clusters(new_str);
-    cout << "\nUnloaded:\t" << new_str;
+char* convert_to_c_string(std::string s){
+    // Dynamically allocate memory for the returned string
+    char* ptr = new char[s.size() + 1]; // +1 for terminating NUL
 
-    // Generate Abstract String
-    string abs_str = input;
-    abs_str = regex_replace(new_str, REGEX_VOWELS, "a");
-    abs_str = regex_replace(abs_str, REGEX_CONSONANTS, "b");
+    // Copy source string in dynamically allocated string buffer
+    strcpy(ptr, s.c_str());
 
-
-
-
-    // Reload REGEX_CLUSTERS from vectors into string.
-    new_str = load_clusters(new_str, found_clusters);
-    cout << "\nReloaded:\t" << new_str << "\n";
-
-
-
-    cout << abs_str << "\n";
-
-
-
-    return NULL;
+    // Return the pointer to the dynamically allocated buffer
+    return ptr;
 }
 
 bool isVowel(char c) {
@@ -79,4 +76,29 @@ bool isConsonant(char c) {
     if (isalpha(c))
         return !isVowel(c);
     return false;
+}
+
+string unload_clusters(string str){
+    return std::regex_replace(str, REGEX_CLUSTERS, SYM);
+}
+
+string load_clusters(string str, vector<string> found_clusters){
+    for (int i = 0; i < found_clusters.size(); i++)
+        str = std::regex_replace(str, REGEX_SYMBOL, found_clusters[i], std::regex_constants::format_first_only);
+    return str;
+}
+
+vector<std::string> generate_cluster_vector (string str){
+    vector<std::string> found_clusters;
+    auto it = std::sregex_iterator(str.begin(), str.end(), REGEX_CLUSTERS);
+
+    for(; it != std::sregex_iterator(); ++it) {
+        found_clusters.push_back(it->str());
+    }
+    return found_clusters;
+}
+
+string generate_abstract(string s) {
+    s = regex_replace(s, REGEX_VOWELS, SYMBOLIC_VOWEL);
+    return regex_replace(s, REGEX_CONSONANTS, SYMBOLIC_CONSONANT);
 }

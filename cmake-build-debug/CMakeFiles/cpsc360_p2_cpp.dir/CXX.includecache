@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/justin/Documents/Courses/CPSC-360_Programming_Lanugage_Concepts/assignments/cpsc360_p2_cpp/hyphen.cpp
+iostream
+-
+cstring
+-
+regex
+-
+

@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/cpsc360_p2_cpp.dir/main.cpp.o CMakeFiles/cpsc360_p2_cpp.dir/hyphen.cpp.o -o cpsc360_p2_cpp 

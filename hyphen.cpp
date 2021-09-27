@@ -59,8 +59,13 @@ char *process(const char *input) {
 
         // Check if current is a letter, else skip
         if (isalpha(current)) {
-            if (isVowel(current)){
+            // isVowel current and is there two more characters in the string, if yes then a pattern is possible
+            if (isVowel(current) && i + 2 < length){
+                next = *(input + i + 1);
+                does_next_begin_cluster = cluster_positions.find(i + 1) != cluster_positions.end();
+                if (isConsonant(next)) {
 
+                }
 
                 // end
                 is_prev_vowel = true;
@@ -72,13 +77,8 @@ char *process(const char *input) {
                 if (! (cluster_positions.find(i) != cluster_positions.end())){
 
 
-                    if (i + 2 < length) {
-                        next = *(input + i + 1);
-                        does_next_begin_cluster = cluster_positions.find(i + 1) != cluster_positions.end();
-
-                    }
                 }
-                // current is a cluster
+                // current is a cluster, skip ahead
                 else {
                     i += cluster_positions[i];
 

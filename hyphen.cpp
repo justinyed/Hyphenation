@@ -15,75 +15,85 @@ bool isConsonant(char c){
     return false;
 }
 
-int isDivisible(const char *c){
+std::map<int, int> indivisible_positions(const char *c){
 
-    int length = strlen(c);
-    std::string list[] = {"qu","tr","br","st","sl","bl","cr","ph","ch"};
-    string s = "";
-    int num_of_char_match = 0;
+    std::string list[] = {"qu","tr","br","st","sl","bl","cr","ph","ch","str"};
+    int length = list->length();
+    string txt = c;
+    std::transform(txt.begin(), txt.end(), txt.begin(), ::tolower);
+    std::map<int, int> m;
 
-    if (length >= 1){
-        return num_of_char_match;
+    for (int i = 0; i < length; i++) {
+        int found = txt.find(list[i]);
+
+        while (found != string::npos) {
+            m[found] = list[i].length();
+            found = txt.find(list[i], found + 1);
+        }
     }
 
-    s += *c + *(c + 1);
-
-    // Check for 2 char match
-    for (int i = 0; i < list->length(); i++)
-        if (list[i] == s)
-            num_of_char_match += 2;
-
-    // Check for 3 char match
-    if ( length <= 3 ) {
-        s += *(c + 2);
-        if ("str" == s)
-            num_of_char_match += 1;
-    }
-
-
-    return num_of_char_match;
+    return m;
 }
 
 char *process(const char *input) {
 
+
+    std::map<int, int> cluster_positions = indivisible_positions(input);
+    int length = strlen(input);
+
+    string org_str = input;
+    string new_str = "";
+
     char current;
-    char prev;
+    bool does_cur_begin_cluster;
+
     char next;
-    char next_next;
+    bool does_next_begin_cluster;
 
-    int length = std::strlen(input);
-    std::string str = "";
-    std::string list[] = {"qu","tr","br","st","sl","bl","cr","ph","ch"};
+    bool is_prev_vowel = false;
+    bool is_prev_consonant = false;
 
-    cout << "\nLength: " << length << "\n";
-    cout << "String: " << *input; // First Char
-
-    for (int i = 0; i < length; i++) {
-
+    for (int i = 0; i < length; i++){
         current = *(input + i);
-        int j = isDivisible(input + i);
-        if (isConsonant(current)){
+        does_cur_begin_cluster = cluster_positions.find(i) != cluster_positions.end();
 
-        }
+        // Check if current is a letter, else skip
+        if (isalpha(current)) {
+            if (isVowel(current)){
 
-        if (i + 1 < length) {
-            next = *(input + i + 1);
-            if (isVowel(prev) && isConsonant(current) && isVowel(next)) {
-                cout << "-";
-                // VC...
-            } else if (i + 2 < length) {
-                next_next = *(input + i + 2);
-                if (isVowel(prev) && isConsonant(current) && isConsonant(next) && isVowel(next_next)) {
-                    // Found VCCV
-                    cout << "|";
-                }
+
+                // end
+                is_prev_vowel = true;
+                is_prev_consonant = false;
             }
+            // current isConsonant
+            else {
+                // check if not a cluster
+                if (! (cluster_positions.find(i) != cluster_positions.end())){
+
+
+                    if (i + 2 < length) {
+                        next = *(input + i + 1);
+                        does_next_begin_cluster = cluster_positions.find(i + 1) != cluster_positions.end();
+
+                    }
+                }
+                // current is a cluster
+                else {
+                    i += cluster_positions[i];
+
+                }
+                // end
+                is_prev_vowel = false;
+                is_prev_consonant = true;
+            }
+
+        } else {
+            // Not a letter so both must be false
+            is_prev_vowel = false;
+            is_prev_consonant = false;
         }
-        cout << current;
     }
-
-
-    cout << "\n";
 
     return NULL;
 }

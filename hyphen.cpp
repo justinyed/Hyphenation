@@ -48,8 +48,9 @@ bool isCluster(std::map<int, int> cluster_positions, int current_position){
 char *process(const char *input) {
 
     regex vowels("[aeiouy]", std::regex::icase);
-    regex consonants("[b-df-hj-np-tv-z]|[\a]", std::regex::icase);
+    regex consonants("[b-df-hj-np-tv-z]|[*]", std::regex::icase);
     regex clusters("(qu)|(tr)|(br)|(st)|(sl)|(bl)|(cr)|(ph)|(ch)|(str)", std::regex::icase);
+    regex symbol("[*]");
 
     regex vcv("vcv", std::regex::icase);
     regex vccv("vccv", std::regex::icase);
@@ -60,6 +61,7 @@ char *process(const char *input) {
     string new_str = input;
 
 
+    // Generate Cluster vectors
     vector<int> found_cluster_positions;
     vector<std::string> found_clusters;
 
@@ -69,6 +71,19 @@ char *process(const char *input) {
         found_cluster_positions.push_back(it->position());
         found_clusters.push_back(it->str());
     }
+
+    cout << "\nOriginal:\t" << new_str;
+
+    // Unload clusters from string replace with symbol
+    new_str = std::regex_replace(new_str, clusters, "*");
+    cout << "\nUnloaded:\t" << new_str;
+
+    // Reload clusters from vectors into string.
+    for (int i = 0; i < found_clusters.size(); i++)
+        new_str = std::regex_replace(new_str, symbol, found_clusters[i], std::regex_constants::format_first_only);
+    cout << "\nReloaded:\t" << new_str << "\n";
+
+
 
 
 

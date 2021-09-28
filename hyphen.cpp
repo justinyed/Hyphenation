@@ -85,14 +85,9 @@ vector<std::string> generate_cluster_vector(string str) {
     return found_clusters;
 }
 
-// REGEX
-// https://stackoverflow.com/questions/61017760/regex-to-match-words-followed-by-whitespace-or-punctuation
-// (?!              # begin a negative lookahead
-//  [^ .,?!;\r\n]   # match 1 char other than those in " .,?!;\r\n"
-//  )               # end the negative lookahead
 string generate_abstract(string s, bool isVCV) {
     if (isVCV) {
-        s = regex_replace(s, regex("e(?![^ .,?!;\\r\\n])", std::regex::icase), "\b");
+        s = regex_replace(s, regex("(e(?=[\\s]))", std::regex::icase), "\b");
     }
     s = regex_replace(s, REGEX_VOWELS, SYMBOLIC_VOWEL);
     return regex_replace(s, REGEX_CONSONANTS, SYMBOLIC_CONSONANT);

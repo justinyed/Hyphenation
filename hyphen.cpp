@@ -9,7 +9,7 @@ bool isVowel(char c);
 bool isConsonant(char c);
 string delimit_VCCV(string str);
 string delimit_VCV(string s);
-string generate_abstract(string s);
+string generate_abstract(string s, bool isVCV=false);
 string unload_clusters(string str);
 string load_clusters(string str, vector<string> found_clusters);
 vector<std::string> generate_cluster_vector (string str);
@@ -94,8 +94,14 @@ vector<std::string> generate_cluster_vector (string str){
     return found_clusters;
 }
 
-string generate_abstract(string s) {
-//    s = regex_replace(s, regex ("(e )", std::regex::icase), "1");
+// https://stackoverflow.com/questions/61017760/regex-to-match-words-followed-by-whitespace-or-punctuation
+// (?!              # begin a negative lookahead
+//  [^ .,?!;\r\n]   # match 1 char other than those in " .,?!;\r\n"
+//  )               # end the negative lookahead
+string generate_abstract(string s, bool isVCV) {
+    if (isVCV) {
+        s = regex_replace(s, regex("e(?![^ .,?!;\\r\\n])", std::regex::icase), "\b");
+    }
     s = regex_replace(s, REGEX_VOWELS, SYMBOLIC_VOWEL);
     return regex_replace(s, REGEX_CONSONANTS, SYMBOLIC_CONSONANT);
 }
@@ -118,7 +124,7 @@ string delimit_VCCV(string s) {
 }
 
 string delimit_VCV(string s) {
-    string str = generate_abstract(s);
+    string str = generate_abstract(s, true);
 
     vector<int> positions;
     auto it = std::sregex_iterator(str.begin(), str.end(), REGEX_PATTERN_VCV);
